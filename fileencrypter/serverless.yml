@@ -6,7 +6,7 @@ provider:
   name: aws
   runtime: python3.9
   region: us-east-1
-  profile: YOUR_AWS_PROFILE
+  profile: serverless-admin
   stage: dev
 
 functions:
@@ -16,7 +16,7 @@ functions:
       SECRET_KEY: ${self:custom.secretKey}
     events:
       - s3:
-          bucket: YOUR_BUCKET  # Replace with your S3 bucket name
+          bucket: yourbucket  # Replace with your S3 bucket name
           event: s3:ObjectCreated:*
           rules:
             - prefix: raw/
@@ -47,8 +47,8 @@ resources:
                     - 's3:PutObject'
                     - 's3:ListBucket'
                   Resource: 
-                    - 'arn:aws:s3:::YOUR_BUCKET'
-                    - 'arn:aws:s3:::YOUR_BUCKET/*'
+                    - 'arn:aws:s3:::yourbucket'
+                    - 'arn:aws:s3:::yourbucket/*'
                 - Effect: Allow
                   Action:
                     - 'kms:GenerateDataKey'
@@ -63,7 +63,7 @@ plugins:
   - serverless-python-requirements
 
 custom:
-  secretKey: 'YOUR_SECRET_KEY'
-  bucket: YOUR_BUCKET
+  secretKey: ${file(pathto\fernet_secret_key.txt)}
+  bucket: ecroninencryptionbucket
   pythonRequirements:
     dockerizePip: non-linux

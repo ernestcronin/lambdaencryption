@@ -1,11 +1,11 @@
 import boto3
 import json
 
-BUCKET_NAME = YOUR_BUCKET
-FILE_PATH = YOUR_FILE
+BUCKET_NAME = 'yourbucket'
+FILE_PATH = 'mytextfile.txt'
 
 # Read AWS credentials from a file
-with open('YOUR_AWS_KEY_LOCATION', 'r') as f:
+with open('pathto\aws_credentials.json', 'r') as f:
     aws_credentials = json.load(f)
 
 ACCESS_KEY = aws_credentials['access_key']
