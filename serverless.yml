@@ -1,0 +1,69 @@
+service: fileencrypter
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  profile: YOUR_AWS_PROFILE
+  stage: dev
+
+functions:
+  encrypt_file:
+    handler: handler.encrypt_file
+    environment:
+      SECRET_KEY: ${self:custom.secretKey}
+    events:
+      - s3:
+          bucket: YOUR_BUCKET  # Replace with your S3 bucket name
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: raw/
+    role: LambdaExecutionRole
+
+resources:
+  Resources:
+    LambdaExecutionRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - 'sts:AssumeRole'
+        Policies:
+          - PolicyName: root
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - 's3:GetObject'
+                    - 's3:PutObject'
+                    - 's3:ListBucket'
+                  Resource: 
+                    - 'arn:aws:s3:::YOUR_BUCKET'
+                    - 'arn:aws:s3:::YOUR_BUCKET/*'
+                - Effect: Allow
+                  Action:
+                    - 'kms:GenerateDataKey'
+                  Resource: 'arn:aws:kms:*:*:key/*'
+                - Effect: Allow
+                  Action:
+                    - 'logs:CreateLogGroup'
+                    - 'logs:CreateLogStream'
+                    - 'logs:PutLogEvents'
+                  Resource: 'arn:aws:logs:*:*:*'
+plugins:
+  - serverless-python-requirements
+
+custom:
+  secretKey: 'YOUR_SECRET_KEY'
+  bucket: YOUR_BUCKET
+  pythonRequirements:
+    dockerizePip: non-linux
